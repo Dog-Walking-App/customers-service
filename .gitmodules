@@ -1,0 +1,3 @@
+[submodule "jwt"]
+	path = jwt
+	url = git@github.com:Dog-Walking-App/jwt.git
