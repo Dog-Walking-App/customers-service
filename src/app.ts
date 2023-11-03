@@ -11,14 +11,18 @@ export const startApp = async ({
 
   try {
     const generatedToken = jwt.generate(mockClaims);
+    // eslint-disable-next-line no-console
     console.log('Generated token:', generatedToken);
   
     const claimsResult = jwt.getClaims(generatedToken);
+    // eslint-disable-next-line no-console
     console.log('Claims:', claimsResult);
   
     const isValid = jwt.validate(generatedToken);
+    // eslint-disable-next-line no-console
     console.log('Is valid:', isValid);
   } catch (error) {
+    // eslint-disable-next-line no-console
     console.error(error);
   }
-}
+};

@@ -1,23 +1,26 @@
-import ffi from 'ffi-napi';
-import ref from 'ref-napi';
-import RefStructDI from 'ref-struct-di';
-
-const Struct = RefStructDI(ref)
-
-const FfiResult = Struct({
-  'success': 'bool',
-  'data': 'string',
-  'error': 'string',
-});
+import { dlopen, FFIType } from 'bun:ffi';
+import { Buffer } from 'buffer';
 
 const {
-  generate,
-  get_claims,
-  validate,
-} = ffi.Library('./jwt/target/release/libjwt.so', {
-  'generate': ['string', ['string', 'string']],
-  'get_claims': [FfiResult, ['string', 'string']],
-  'validate': ['bool', ['string', 'string']],
+  symbols: {
+    generate,
+    get_claims,
+    validate,
+  },
+  close,
+} = dlopen('./jwt/target/release/libjwt.so', {
+  generate: {
+    args: [FFIType.cstring, FFIType.cstring],
+    returns: FFIType.cstring,
+  },
+  get_claims: {
+    args: [FFIType.cstring, FFIType.cstring],
+    returns: FFIType.cstring,
+  },
+  validate: {
+    args: [FFIType.cstring, FFIType.cstring],
+    returns: FFIType.bool,
+  },
 });
 
 
@@ -37,26 +40,44 @@ class JWT {
     this.secret = secret;
   }
 
+  private fromString(str: string): Buffer {
+    return Buffer.concat([Buffer.from(str), Buffer.from([0])]);
+  }
+
   public generate<T extends BaseClaims>(claims: T): string {
-    return generate(this.secret, JSON.stringify(claims)) as string;
+    return generate(
+      this.fromString(this.secret),
+      this.fromString(JSON.stringify(claims)),
+    ).toString();
   }
 
   public getClaims<T extends BaseClaims>(token: string): T {
-    const result = get_claims(this.secret, token);
-
-    if (result.success === false) {
-      throw new Error(result.error as string);
+    const result = get_claims(
+      this.fromString(this.secret),
+      this.fromString(token),
+    ).toString();
+    const parsed = JSON.parse(result);
+    
+    if (parsed.success === false) {
+      throw new Error(parsed.error);
     }
     
-    return JSON.parse(result.data as string);
+    return parsed.data;
   }
 
   public validate(token: string): boolean {
-    if (validate(this.secret, token)) {
+    if (validate(
+      this.fromString(this.secret),
+      this.fromString(token),
+    )) {
       return true;
     }
 
     throw new Error('Invalid token');
+  }
+
+  public dispose(): void {
+    close();
   }
 }
 
