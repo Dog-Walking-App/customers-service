@@ -7,5 +7,9 @@
   "editor.bracketPairColorization.enabled": true,
   "editor.guides.bracketPairs": "active",
   "prettier.enable": false,
-  "eslint.experimental.useFlatConfig": true
+  "eslint.experimental.useFlatConfig": true,
+  "cSpell.words": [
+    "Elysia",
+    "elysiajs"
+  ]
 }

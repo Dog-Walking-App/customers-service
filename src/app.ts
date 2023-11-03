@@ -1,28 +1,38 @@
+import { Elysia } from 'elysia';
+import { swagger } from '@elysiajs/swagger';
+import { cors } from '@elysiajs/cors';
+
 import JWT from './jwt';
 
-const mockClaims = { sub: '1', username: 'admin', exp: 1699971962 };
-
-export const startApp = async ({
-  jwtSecret,
-}: {
+export interface Config {
   jwtSecret: string;
-}) => {
+  port: number;
+  domainsWhitelist: string[];
+}
+
+export const startApp = ({
+  jwtSecret,
+  port,
+  domainsWhitelist,
+}: Config): void => {
   const jwt = JWT.new(jwtSecret);
 
-  try {
-    const generatedToken = jwt.generate(mockClaims);
-    // eslint-disable-next-line no-console
-    console.log('Generated token:', generatedToken);
-  
-    const claimsResult = jwt.getClaims(generatedToken);
-    // eslint-disable-next-line no-console
-    console.log('Claims:', claimsResult);
-  
-    const isValid = jwt.validate(generatedToken);
-    // eslint-disable-next-line no-console
-    console.log('Is valid:', isValid);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
-  }
+  new Elysia()
+    .state('version', 1)
+    .state('jwt', jwt)
+    .use(swagger())
+    .use(cors({
+      origin: domainsWhitelist,
+      credentials: true,
+    }))
+    .get('/ping', () => 'pong', {
+      detail: {
+        summary: 'Ping the server',
+        tags: ['healthcheck'],
+      },
+    })
+    .listen(port, () => {
+      // eslint-disable-next-line no-console
+      console.log(`Listening on port ${port}`);
+    });
 };

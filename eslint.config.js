@@ -46,6 +46,7 @@ export default [
       '@typescript-eslint/no-unused-vars': 'warn',
       'no-console': 'warn',
       'multiline-ternary': 'off',
+      'no-unused-vars': 'off',
     },
   },
 ];
