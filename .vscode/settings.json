@@ -10,6 +10,7 @@
   "eslint.experimental.useFlatConfig": true,
   "cSpell.words": [
     "Elysia",
-    "elysiajs"
+    "elysiajs",
+    "typeorm"
   ]
 }

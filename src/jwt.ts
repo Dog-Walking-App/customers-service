@@ -1,6 +1,7 @@
 import { dlopen, FFIType } from 'bun:ffi';
 import { Buffer } from 'buffer';
 
+
 const {
   symbols: {
     generate,
@@ -8,7 +9,7 @@ const {
     validate,
   },
   close,
-} = dlopen('./jwt/target/release/libjwt.so', {
+} = dlopen(import.meta.resolveSync('../jwt/target/release/libjwt.so'), {
   generate: {
     args: [FFIType.cstring, FFIType.cstring],
     returns: FFIType.cstring,
@@ -29,7 +30,14 @@ export interface BaseClaims {
   exp: number;
 }
 
-class JWT {
+export interface IJWT {
+  generate<T extends BaseClaims>(claims: T): string;
+  getClaims<T extends BaseClaims>(token: string): T;
+  validate(token: string): boolean;
+  dispose(): void;
+}
+
+class JWT implements IJWT {
   private secret: string;
 
   public static new(secret: string): JWT {

@@ -1,0 +1,25 @@
+# First stage: Pull submodules and build the Rust project
+FROM oven/bun AS build-stage
+
+WORKDIR /app
+COPY src ./src
+COPY .git ./.git
+COPY index.ts bun.lockb package.json tsconfig.json .env .gitmodules ./
+
+RUN apt-get update && apt-get install -y git curl build-essential
+RUN apt-get install -y curl
+RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+RUN bun install
+RUN git submodule update --init --recursive
+COPY jwt ./jwt
+RUN cd jwt && /root/.cargo/bin/cargo build --release
+
+# Second stage: Copy the built Rust project and run the application
+FROM oven/bun
+
+WORKDIR /app
+COPY --from=build-stage /app .
+
+EXPOSE 8060
+
+CMD ["bun", "run", "start:watch"]

@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "bun run index.ts",
+    "start:watch": "bun run --watch index.ts",
     "build": "tsc",
     "pull-submodules": "git submodule update --init --recursive",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -23,8 +24,13 @@
     "typescript": "^5.2.2"
   },
   "dependencies": {
-    "@elysiajs/cors": "^0.7.1",
+    "@elysiajs/bearer": "^0.7.0",
+    "@elysiajs/cors": "^0.7.2",
     "@elysiajs/swagger": "^0.7.4",
-    "elysia": "^0.7.21"
+    "class-validator": "^0.14.0",
+    "elysia": "^0.7.29",
+    "pg": "^8.11.3",
+    "reflect-metadata": "^0.1.13",
+    "typeorm": "^0.3.17"
   }
 }
