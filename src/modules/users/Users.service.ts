@@ -13,8 +13,14 @@ export class UsersService {
     this.usersRepository = usersRepository;
   }
   
-  public register(claims: BaseClaims, wipUser: IWIPUser): Promise<IUser> {
-    return this.usersRepository.create(claims.sub, wipUser);
+  public async register(claims: BaseClaims, wipUser: IWIPUser): Promise<IUser> {
+    try {
+      await this.usersRepository.getByAccountId(claims.sub);
+
+      throw new Error('User already exists');
+    } catch (error) {
+      return this.usersRepository.create(claims.sub, wipUser);
+    }
   }
 
   public getMe(claims: BaseClaims): Promise<IUser> {

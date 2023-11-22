@@ -1,5 +1,5 @@
-import { Handler } from 'elysia';
-import { IJWT, BaseClaims } from '../jwt';
+import { BaseClaims, IJWT } from '../jwt';
+import { IContext } from '../controller';
 
 export interface IProtectConfig {
   jwt: IJWT;
@@ -7,11 +7,7 @@ export interface IProtectConfig {
 
 const protect = (
   { jwt }: IProtectConfig,
-): Handler<{}, {
-  store: { claims: BaseClaims };
-  request: { readonly bearer?: string };
-}> => (context) => {
-  const { bearer, set, store } = context;
+) => ({ bearer, set }: IContext): { claims: BaseClaims } => {
   if (!bearer) {
     set.status = 400;
     set.headers[
@@ -22,7 +18,9 @@ const protect = (
   } else {
     try {
       const claims = jwt.getClaims(bearer);
-      store.claims = claims;
+      return {
+        claims,
+      };
     } catch (error) {
       set.status = 400;
       set.headers[

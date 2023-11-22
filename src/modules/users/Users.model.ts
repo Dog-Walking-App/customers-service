@@ -1,5 +1,5 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
-import { IModel } from '../../utils/model';
+import { IModel } from '../../model';
 import { IUser, User as UserDO } from './Users.do';
 
 @Entity()

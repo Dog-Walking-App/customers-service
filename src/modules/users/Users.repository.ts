@@ -38,7 +38,14 @@ export class UsersRepository implements IUsersRepository {
   }
 
   public async getById(id: string): Promise<IUser> {
-    const user = await this.repository.findOneBy({ id });
+    let parsedId: number;
+    try {
+      parsedId = parseInt(id);
+    } catch (error) {
+      throw new Error('Invalid id');
+    }
+    
+    const user = await this.repository.findOneBy({ id: parsedId });
     if (!user) throw new Error('User not found');
 
     return user.toDO();
@@ -52,7 +59,14 @@ export class UsersRepository implements IUsersRepository {
   }
 
   public async update(id: string, wipUser: Partial<IWIPUser>): Promise<IUser> {
-    const user = await this.repository.findOneBy({ id });
+    let parsedId: number;
+    try {
+      parsedId = parseInt(id);
+    } catch (error) {
+      throw new Error('Invalid id');
+    }
+
+    const user = await this.repository.findOneBy({ id: parsedId });
     if (!user) throw new Error('User not found');
 
     user.firstName = wipUser.firstName || user.firstName;

@@ -1,9 +1,11 @@
+import { t } from 'elysia';
 import { IsOptional } from 'class-validator';
 import { IUser, IWIPUser, WIPUser } from './Users.do';
 import {
   IRequestInstanceDTO, IRequestDTO,
   IResponseInstanceDTO, IResponseDTO,
-} from '../../utils/dto';
+} from '../../controller/dto';
+import { IBodySchema, IResponseSchema } from '../../controller/schema';
 
 interface IUserDTO {
   id: string;
@@ -42,9 +44,20 @@ class UserDTOClass implements IResponseInstanceDTO {
       lastName: this.lastName,
     };
   }
+
+  public static toResponseSchema() {
+    return t.Object({
+      id: t.String(),
+      accountId: t.String(),
+      firstName: t.String(),
+      lastName: t.String(),
+    }, {
+      description: 'Current user',
+    });
+  }
 }
 
-export const UserDTO: IResponseDTO<IUser> = UserDTOClass;
+export const UserDTO: IResponseDTO<IUser> & IResponseSchema = UserDTOClass;
 
 
 interface IWIPUserDTO {
@@ -74,6 +87,15 @@ class WIPUserDTOClass implements IRequestInstanceDTO<IWIPUser> {
       lastName: this.lastName,
     });
   }
+
+  public static toBodySchema() {
+    return t.Object({
+      firstName: t.Optional(t.String()),
+      lastName: t.Optional(t.String()),
+    }, {
+      description: 'Expected an accountId, firstName(optional) and lastName(optional)',
+    });
+  }
 }
 
-export const WIPUserDTO: IRequestDTO<IWIPUser> = WIPUserDTOClass;
+export const WIPUserDTO: IRequestDTO<IWIPUser> & IBodySchema = WIPUserDTOClass;
