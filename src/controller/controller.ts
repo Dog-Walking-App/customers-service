@@ -1,6 +1,7 @@
 import { Elysia, Context, t } from 'elysia';
 import type { UnionToIntersection } from '../types';
-import { BodySchema, ResponseSchema } from './schema';
+import { ParamsSchema, BodySchema, ResponseSchema } from './schema';
+import { IAppPlugin } from './app';
 
 interface IStore {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -25,6 +26,7 @@ type Handler = (context: IContext) => object | Promise<object>;
   
 interface IOptions<T extends Handler> {
   beforeHandle?: T[];
+  params?: ParamsSchema;
   body?: BodySchema;
   response?: ResponseSchema;
   detail: {
@@ -33,33 +35,21 @@ interface IOptions<T extends Handler> {
   };
 }
 
-type CallbackContextData<T extends Handler> = UnionToIntersection<Awaited<ReturnType<T>>>;
+type CallbackContextData<
+  T extends Handler = Handler,
+> = UnionToIntersection<Awaited<ReturnType<T>>>;
 
-type CallbackContext<T extends Handler> = CallbackContextData<T> & IContext;
+type CallbackContext<
+  P extends object = Record<string, string | undefined>,
+  T extends Handler = Handler,
+> = CallbackContextData<T> & { params: P } & Omit<IContext, 'params'>;
 
-type Callback<T extends Handler> = (context: CallbackContext<T>) => Promise<unknown>;
+type Callback<
+  P extends object = Record<string, string | undefined>,
+  T extends Handler = Handler,
+> = (context: CallbackContext<P, T>) => Promise<unknown>;
 
-export interface IController {
-  get: <T extends Handler>(
-    path: string,
-    callback: Callback<T>,
-    options: IOptions<T>,
-  ) => IController;
-  post: <T extends Handler>(
-    path: string,
-    callback: Callback<T>,
-    options: IOptions<T>,
-  ) => IController;
-  put: <T extends Handler>(
-    path: string,
-    callback: Callback<T>,
-    options: IOptions<T>,
-  ) => IController;
-
-  getApp: () => Elysia<string>;
-}
-
-export class Controller implements IController {
+export class Controller implements IAppPlugin {
   private app: Elysia<string>;
 
   public constructor(path: string) {
@@ -67,8 +57,11 @@ export class Controller implements IController {
     this.app = app;
   }
 
-  private handle<T extends Handler>(
-    callback: Callback<T>,
+  private handle<
+    P extends object = Record<string, string | undefined>,
+    T extends Handler = Handler,
+  >(
+    callback: Callback<P, T>,
   ): (context: IContext) => Promise<unknown> {
     return (context) => {
       const { data } = (context.store as { data: CallbackContextData<T> });
@@ -98,11 +91,11 @@ export class Controller implements IController {
     };
   }
   
-  public get<T extends Handler>(
+  public get<P extends object = Record<string, string | undefined>, T extends Handler = Handler>(
     path: string,
-    callback: Callback<T>,
+    callback: Callback<P, T>,
     { beforeHandle = [], response = {}, ...restOptions}: IOptions<T>,
-  ): IController {
+  ): Controller {
     this.app.get(path, this.handle(callback), {
       ...restOptions,
       response: this.extendResponse(response),
@@ -111,11 +104,11 @@ export class Controller implements IController {
     return this;
   }
 
-  public post<T extends Handler>(
+  public post<P extends object = Record<string, string | undefined>, T extends Handler = Handler>(
     path: string,
-    callback: Callback<T>,
+    callback: Callback<P, T>,
     { beforeHandle = [], response = {}, ...restOptions}: IOptions<T>,
-  ): IController {
+  ): Controller {
     this.app.post(path, this.handle(callback), {
       ...restOptions,
       response: this.extendResponse(response),
@@ -124,12 +117,25 @@ export class Controller implements IController {
     return this;
   }
 
-  public put<T extends Handler>(
+  public put<P extends object = Record<string, string | undefined>, T extends Handler = Handler>(
     path: string,
-    callback: Callback<T>,
+    callback: Callback<P, T>,
     { beforeHandle = [], response = {}, ...restOptions}: IOptions<T>,
-  ): IController {
+  ): Controller {
     this.app.put(path, this.handle(callback), {
+      ...restOptions,
+      response: this.extendResponse(response),
+      beforeHandle: this.extendBeforeHandle(beforeHandle),
+    });
+    return this;
+  }
+
+  public delete<P extends object = Record<string, string | undefined>, T extends Handler = Handler>(
+    path: string,
+    callback: Callback<P, T>,
+    { beforeHandle = [], response = {}, ...restOptions}: IOptions<T>,
+  ): Controller {
+    this.app.delete(path, this.handle(callback), {
       ...restOptions,
       response: this.extendResponse(response),
       beforeHandle: this.extendBeforeHandle(beforeHandle),

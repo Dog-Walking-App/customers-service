@@ -1,9 +1,7 @@
-import { Controller, IController } from '../../controller';
+import { Controller, IAppPlugin } from '../../controller';
 
-const getController = (): IController => {
-  const controller = new Controller('/healthcheck');
-
-  return controller
+const getController = (): IAppPlugin => {
+  return new Controller('/healthcheck')
     .get('/ping', async () => 'pong', {
       detail: {
         summary: 'Ping the server',

@@ -1,5 +1,6 @@
 import { InputSchema } from 'elysia';
 
+export type ParamsSchema = InputSchema<never>['params'];
 export type BodySchema = InputSchema<never>['body'];
 export type ResponseSchema = InputSchema<never>['response'];
 

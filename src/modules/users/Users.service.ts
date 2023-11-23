@@ -27,7 +27,10 @@ export class UsersService {
     return this.usersRepository.getByAccountId(claims.sub);
   }
 
-  public updateMe(claims: BaseClaims, wip: Partial<IWIPUser>): Promise<IUser> {
-    return this.usersRepository.updateByAccountId(claims.sub, wip);
+  public async update(claims: BaseClaims, id: string, wip: Partial<IWIPUser>): Promise<IUser> {
+    const user = await this.usersRepository.getByAccountId(claims.sub);
+    if (user.id !== id) throw new Error('Not allowed to update other users');
+
+    return this.usersRepository.update(id, wip);
   }
 }

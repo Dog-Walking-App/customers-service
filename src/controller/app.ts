@@ -3,14 +3,16 @@ import { swagger } from '@elysiajs/swagger';
 import { cors } from '@elysiajs/cors';
 import { bearer } from '@elysiajs/bearer';
 
-import { IController } from './controller';
+export interface IAppPlugin {
+  getApp: () => Elysia<string>;
+}
 
 interface IConfig {
   domainsWhitelist: string[];
 }
 
 interface IApp {
-  use(controller: IController): IApp;
+  use(controller: IAppPlugin): IApp;
   listen(port: number, callback: () => void): IApp;
   onStop(callback: () => void): IApp;
 }
@@ -31,7 +33,7 @@ export class App implements IApp {
       .use(bearer());
   }
 
-  use(controller: IController): IApp {
+  use(controller: IAppPlugin): IApp {
     this.app.use(controller.getApp());
 
     return this;

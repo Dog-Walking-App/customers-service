@@ -93,7 +93,7 @@ class WIPUserDTOClass implements IRequestInstanceDTO<IWIPUser> {
       firstName: t.Optional(t.String()),
       lastName: t.Optional(t.String()),
     }, {
-      description: 'Expected an accountId, firstName(optional) and lastName(optional)',
+      description: 'Expected firstName(optional) and lastName(optional)',
     });
   }
 }

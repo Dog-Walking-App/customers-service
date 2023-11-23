@@ -1,4 +1,4 @@
-import { Controller, IController } from '../../controller';
+import { Controller, IAppPlugin, t } from '../../controller';
 import { protect, validate, IProtectConfig } from '../../middlewares';
 
 import { UsersService } from './Users.service';
@@ -8,14 +8,13 @@ interface IConfig extends IProtectConfig {
   usersService: UsersService;
 }
 
-const getRoutes = (config: IConfig): IController => {
+const getRoutes = (config: IConfig): IAppPlugin => {
   const { usersService } = config;
-  const controller = new Controller('/users');
 
   const protectMiddleware = protect(config);
   const validateWIPUserMiddleware = validate(WIPUserDTO);
 
-  controller
+  return new Controller('/users')
     .get('/me', async ({ claims }) => {
       const user = await usersService.getMe(claims);
 
@@ -30,7 +29,7 @@ const getRoutes = (config: IConfig): IController => {
         tags: ['users'],
       },
     })
-    .post('/me', async ({ claims, data }) => {
+    .post('/', async ({ claims, data }) => {
       const user = await usersService.register(claims, data);
 
       return UserDTO.fromDO(user).toBody();
@@ -42,20 +41,27 @@ const getRoutes = (config: IConfig): IController => {
         tags: ['users'],
       },
     })
-    .put('/me', async ({ claims }) => {
-      const user = await usersService.getMe(claims);
+    .put('/:id', async ({ claims, params, data }) => {
+      if (!params.id) throw new Error('Id is required');
+
+      const user = await usersService.update(
+        claims,
+        params.id,
+        data,
+      );
 
       return UserDTO.fromDO(user).toBody();
     }, {
-      beforeHandle: [protectMiddleware],
+      beforeHandle: [protectMiddleware, validateWIPUserMiddleware],
+      params: t.Object({
+        id: t.String(),
+      }),
       body: WIPUserDTO.toBodySchema(),
       detail: {
         summary: 'Update current user',
         tags: ['users'],
       },
     });
-
-  return controller;
 };
 
 export default getRoutes;

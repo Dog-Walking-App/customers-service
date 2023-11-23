@@ -6,8 +6,12 @@ import { App } from './controller';
 import { UsersService } from './modules/users/Users.service';
 import { UsersRepository } from './modules/users/Users.repository';
 
-import getHealthCheckRoutes from './modules/healthCheck/HealthCheck.controller';
-import getUsersRoutes from './modules/users/Users.controller';
+import { PetsService } from './modules/pets/Pets.service';
+import { PetsRepository } from './modules/pets/Pets.repository';
+
+import getHealthCheckController from './modules/healthCheck/HealthCheck.controller';
+import getUsersController from './modules/users/Users.controller';
+import getPetsController from './modules/pets/Pets.controller';
 
 export const bootstrap = async ({
   jwtSecret,
@@ -31,10 +35,16 @@ export const bootstrap = async ({
   const usersService = new UsersService({
     usersRepository,
   });
+  const petsRepository = new PetsRepository(dataSource);
+  const petsService = new PetsService({
+    petsRepository,
+    usersRepository,
+  });
 
   new App({ domainsWhitelist })
-    .use(getHealthCheckRoutes())
-    .use(getUsersRoutes({ usersService, jwt }))
+    .use(getHealthCheckController())
+    .use(getUsersController({ usersService, jwt }))
+    .use(getPetsController({ petsService, jwt }))
     .listen(port, () => {
       // eslint-disable-next-line no-console
       console.log(`Listening on port ${port}`);
