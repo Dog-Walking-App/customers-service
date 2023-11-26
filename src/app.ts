@@ -9,9 +9,8 @@ import { UsersRepository } from './modules/users/Users.repository';
 import { PetsService } from './modules/pets/Pets.service';
 import { PetsRepository } from './modules/pets/Pets.repository';
 
-import getHealthCheckController from './modules/healthCheck/HealthCheck.controller';
-import getUsersController from './modules/users/Users.controller';
-import getPetsController from './modules/pets/Pets.controller';
+import getUsersController from './modules/users';
+import getPetsController from './modules/pets';
 
 export const bootstrap = async ({
   jwtSecret,
@@ -42,7 +41,6 @@ export const bootstrap = async ({
   });
 
   new App({ domainsWhitelist })
-    .use(getHealthCheckController())
     .use(getUsersController({ usersService, jwt }))
     .use(getPetsController({ petsService, jwt }))
     .listen(port, () => {

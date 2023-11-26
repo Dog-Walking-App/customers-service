@@ -1,4 +1,4 @@
-import { Elysia } from 'elysia';
+import { Elysia, t } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
 import { cors } from '@elysiajs/cors';
 import { bearer } from '@elysiajs/bearer';
@@ -116,6 +116,13 @@ export class App implements IApp {
             };
           }
         }
+      })
+      .get('/healthcheck/ping', async () => 'pong', {
+        response: t.String(),
+        detail: {
+          summary: 'Ping the server',
+          tags: ['healthcheck'],
+        },
       });
   }
 
