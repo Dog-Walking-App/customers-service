@@ -1,5 +1,12 @@
-import { Elysia, Context, t } from 'elysia';
+import { Elysia, Context } from 'elysia';
 import type { UnionToIntersection } from '../types';
+import {
+  PermissionErrorSchema, permissionErrorStatus,
+  UnauthorizedErrorSchema, unauthorizedErrorStatus,
+  UnknownErrorSchema, unknownErrorStatus,
+  NotFoundErrorSchema, notFoundErrorStatus,
+  ValidationErrorSchema, validationErrorStatus,
+} from '../errors';
 import { ParamsSchema, BodySchema, ResponseSchema } from './schema';
 import { IAppPlugin } from './app';
 
@@ -82,13 +89,34 @@ export class Controller implements IAppPlugin {
     });
   }
 
-  private extendResponse(response: ResponseSchema): ResponseSchema {
-    return {
-      404: t.String({
-        description: 'Not found',
-      }),
+  private extendResponse(response: ResponseSchema, {
+    params = false,
+    body = false,
+  }: {
+    params?: boolean;
+    body?: boolean;
+  } = {}): ResponseSchema {
+    let extendedResponse: ResponseSchema = {
+      [permissionErrorStatus]: PermissionErrorSchema,
+      [unauthorizedErrorStatus]: UnauthorizedErrorSchema,
+      [unknownErrorStatus]: UnknownErrorSchema,
       ...response,
     };
+
+    if (params) {
+      extendedResponse = {
+        ...extendedResponse,
+        [notFoundErrorStatus]: NotFoundErrorSchema,
+      };
+    }
+    if (body) {
+      extendedResponse = {
+        ...extendedResponse,
+        [validationErrorStatus]: ValidationErrorSchema,
+      };
+    }
+
+    return extendedResponse;
   }
   
   public get<P extends object = Record<string, string | undefined>, T extends Handler = Handler>(
@@ -98,7 +126,10 @@ export class Controller implements IAppPlugin {
   ): Controller {
     this.app.get(path, this.handle(callback), {
       ...restOptions,
-      response: this.extendResponse(response),
+      response: this.extendResponse(response, {
+        params: !!restOptions.params,
+        body: !!restOptions.body,
+      }),
       beforeHandle: this.extendBeforeHandle(beforeHandle),
     });
     return this;
@@ -111,7 +142,10 @@ export class Controller implements IAppPlugin {
   ): Controller {
     this.app.post(path, this.handle(callback), {
       ...restOptions,
-      response: this.extendResponse(response),
+      response: this.extendResponse(response, {
+        params: !!restOptions.params,
+        body: !!restOptions.body,
+      }),
       beforeHandle: this.extendBeforeHandle(beforeHandle),
     });
     return this;
@@ -124,7 +158,10 @@ export class Controller implements IAppPlugin {
   ): Controller {
     this.app.put(path, this.handle(callback), {
       ...restOptions,
-      response: this.extendResponse(response),
+      response: this.extendResponse(response, {
+        params: !!restOptions.params,
+        body: !!restOptions.body,
+      }),
       beforeHandle: this.extendBeforeHandle(beforeHandle),
     });
     return this;
@@ -137,7 +174,10 @@ export class Controller implements IAppPlugin {
   ): Controller {
     this.app.delete(path, this.handle(callback), {
       ...restOptions,
-      response: this.extendResponse(response),
+      response: this.extendResponse(response, {
+        params: !!restOptions.params,
+        body: !!restOptions.body,
+      }),
       beforeHandle: this.extendBeforeHandle(beforeHandle),
     });
     return this;

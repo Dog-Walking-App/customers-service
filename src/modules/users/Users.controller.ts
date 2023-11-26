@@ -1,8 +1,10 @@
 import { Controller, IAppPlugin, t } from '../../controller';
 import { protect, validate, IProtectConfig } from '../../middlewares';
+import { ValidationError } from '../../errors';
 
 import { UsersService } from './Users.service';
 import { UserDTO, WIPUserDTO } from './Users.dto';
+import { Tag } from './tag';
 
 interface IConfig extends IProtectConfig {
   usersService: UsersService;
@@ -26,7 +28,7 @@ const getRoutes = (config: IConfig): IAppPlugin => {
       },
       detail: {
         summary: 'Get the current user',
-        tags: ['users'],
+        tags: [Tag.Users],
       },
     })
     .post('/', async ({ claims, data }) => {
@@ -36,13 +38,16 @@ const getRoutes = (config: IConfig): IAppPlugin => {
     }, {
       beforeHandle: [protectMiddleware, validateWIPUserMiddleware],
       body: WIPUserDTO.toBodySchema(),
+      response: {
+        200: UserDTO.toResponseSchema(),
+      },
       detail: {
         summary: 'Register a user',
-        tags: ['users'],
+        tags: [Tag.Users],
       },
     })
     .put('/:id', async ({ claims, params, data }) => {
-      if (!params.id) throw new Error('Id is required');
+      if (!params.id) throw new ValidationError('Id is required');
 
       const user = await usersService.update(
         claims,
@@ -57,9 +62,12 @@ const getRoutes = (config: IConfig): IAppPlugin => {
         id: t.String(),
       }),
       body: WIPUserDTO.toBodySchema(),
+      response: {
+        200: UserDTO.toResponseSchema(),
+      },
       detail: {
         summary: 'Update current user',
-        tags: ['users'],
+        tags: [Tag.Users],
       },
     });
 };

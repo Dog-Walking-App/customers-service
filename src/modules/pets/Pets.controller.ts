@@ -1,10 +1,10 @@
-import { t } from 'elysia';
-
-import { Controller, IAppPlugin } from '../../controller';
+import { Controller, IAppPlugin, t } from '../../controller';
 import { protect, validate, IProtectConfig } from '../../middlewares';
+import { ValidationError } from '../../errors';
 
 import { PetsService } from './Pets.service';
 import { PetDTO, WIPPetDTO } from './Pets.dto';
+import { Tag } from './tag';
 
 interface IConfig extends IProtectConfig {
   petsService: PetsService;
@@ -34,7 +34,7 @@ const getRoutes = (config: IConfig): IAppPlugin => {
       },
       detail: {
         summary: 'Get the current user pets',
-        tags: ['pets'],
+        tags: [Tag.Pets],
       },
     })
     .post('/', async ({ claims, data }) => {
@@ -44,13 +44,16 @@ const getRoutes = (config: IConfig): IAppPlugin => {
     }, {
       beforeHandle: [protectMiddleware, validateWIPPetMiddleware],
       body: WIPPetDTO.toBodySchema(),
+      response: {
+        200: PetDTO.toResponseSchema(),
+      },
       detail: {
         summary: 'Register current user pet',
-        tags: ['pets'],
+        tags: [Tag.Pets],
       },
     })
     .put('/:id', async ({ claims, params, data }) => {
-      if (!params.id) throw new Error('Id is required');
+      if (!params.id) throw new ValidationError('Id is required');
       
       const pet = await petsService.updatePet(
         claims,
@@ -65,13 +68,16 @@ const getRoutes = (config: IConfig): IAppPlugin => {
         id: t.String(),
       }),
       body: WIPPetDTO.toBodySchema(),
+      response: {
+        200: PetDTO.toResponseSchema(),
+      },
       detail: {
         summary: 'Update current user pet',
-        tags: ['pets'],
+        tags: [Tag.Pets],
       },
     })
     .delete('/:id', async ({ claims, params }) => {
-      if (!params.id) throw new Error('Id is required');
+      if (!params.id) throw new ValidationError('Id is required');
       
       const pet = await petsService.deletePet(
         claims,
@@ -85,9 +91,12 @@ const getRoutes = (config: IConfig): IAppPlugin => {
         id: t.String(),
       }),
       body: WIPPetDTO.toBodySchema(),
+      response: {
+        200: PetDTO.toResponseSchema(),
+      },
       detail: {
         summary: 'Delete current user pet',
-        tags: ['pets'],
+        tags: [Tag.Pets],
       },
     });
 };

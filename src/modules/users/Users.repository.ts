@@ -1,6 +1,8 @@
+import { DataSource, Repository } from '../../dataSource';
+import { BaseRepository } from '../../repository';
+import { NotFoundError } from '../../errors';
 import { IWIPUser, IUser } from './Users.do';
 import { User } from './Users.model';
-import { DataSource, Repository } from '../../dataSource';
 
 export interface IUsersRepository {
   create(accountId: string, wipUser: IWIPUser): Promise<IUser>;
@@ -11,14 +13,15 @@ export interface IUsersRepository {
   updateByAccountId(accountId: string, wipUser: Partial<IWIPUser>): Promise<IUser>;
 }
 
-export class UsersRepository implements IUsersRepository {
+export class UsersRepository extends BaseRepository implements IUsersRepository {
   private repository: Repository<User>;
   
   public constructor(dataSource: DataSource) {
+    super();
     const repository = dataSource.getRepository(User);
     this.repository = repository;
   }
-  
+
   public async create(accountId: string, wipUser: IWIPUser): Promise<IUser> {
     const user = new User();
     user.accountId = accountId;
@@ -37,37 +40,27 @@ export class UsersRepository implements IUsersRepository {
     };
   }
 
-  public async getById(id: string): Promise<IUser> {
-    let parsedId: number;
-    try {
-      parsedId = parseInt(id);
-    } catch (error) {
-      throw new Error('Invalid id');
-    }
+  public async getById(rawId: string): Promise<IUser> {
+    const id = this.parseId(rawId);
     
-    const user = await this.repository.findOneBy({ id: parsedId });
-    if (!user) throw new Error('User not found');
+    const user = await this.repository.findOneBy({ id });
+    if (!user) throw new NotFoundError('User not found');
 
     return user.toDO();
   }
 
   public async getByAccountId(accountId: string): Promise<IUser> {
     const user = await this.repository.findOneBy({ accountId });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundError('User not found');
 
     return user.toDO();
   }
 
-  public async update(id: string, wipUser: Partial<IWIPUser>): Promise<IUser> {
-    let parsedId: number;
-    try {
-      parsedId = parseInt(id);
-    } catch (error) {
-      throw new Error('Invalid id');
-    }
+  public async update(rawId: string, wipUser: Partial<IWIPUser>): Promise<IUser> {
+    const id = this.parseId(rawId);
 
-    const user = await this.repository.findOneBy({ id: parsedId });
-    if (!user) throw new Error('User not found');
+    const user = await this.repository.findOneBy({ id });
+    if (!user) throw new NotFoundError('User not found');
 
     user.firstName = wipUser.firstName || user.firstName;
     user.lastName = wipUser.lastName || user.lastName;
@@ -78,7 +71,7 @@ export class UsersRepository implements IUsersRepository {
 
   public async updateByAccountId(accountId: string, wipUser: Partial<IWIPUser>): Promise<IUser> {
     const user = await this.repository.findOneBy({ accountId });
-    if (!user) throw new Error('User not found');
+    if (!user) throw new NotFoundError('User not found');
 
     user.firstName = wipUser.firstName || user.firstName;
     user.lastName = wipUser.lastName || user.lastName;

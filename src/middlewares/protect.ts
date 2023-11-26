@@ -1,4 +1,5 @@
 import { BaseClaims, IJWT } from '../jwt';
+import { UnauthorizedError } from '../errors';
 import { IContext } from '../controller';
 
 export interface IProtectConfig {
@@ -7,14 +8,9 @@ export interface IProtectConfig {
 
 const protect = (
   { jwt }: IProtectConfig,
-) => ({ bearer, set }: IContext): { claims: BaseClaims } => {
+) => ({ bearer }: IContext): { claims: BaseClaims } => {
   if (!bearer) {
-    set.status = 400;
-    set.headers[
-      'WWW-Authenticate'
-    ] = `Bearer realm='sign', error="invalid_request"`;
-
-    throw new Error('Unauthorized');
+    throw new UnauthorizedError();
   } else {
     try {
       const claims = jwt.getClaims(bearer);
@@ -22,12 +18,7 @@ const protect = (
         claims,
       };
     } catch (error) {
-      set.status = 400;
-      set.headers[
-        'WWW-Authenticate'
-      ] = `Bearer realm='sign', error="invalid_request"`;
-
-      throw new Error('Unauthorized');
+      throw new UnauthorizedError();
     }
   }
 };

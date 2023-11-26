@@ -2,6 +2,17 @@ import { Elysia } from 'elysia';
 import { swagger } from '@elysiajs/swagger';
 import { cors } from '@elysiajs/cors';
 import { bearer } from '@elysiajs/bearer';
+import {
+  DatabaseError,
+  ConflictError, conflictErrorStatus,
+  InvalidIdError, invalidIdErrorStatus,
+  NotFoundError, notFoundErrorStatus,
+  UnauthorizedError, unauthorizedErrorStatus,
+  PermissionError, permissionErrorStatus,
+  UnknownError, unknownErrorStatus,
+  ValidationError, validationErrorStatus,
+  Type,
+} from '../errors';
 
 export interface IAppPlugin {
   getApp: () => Elysia<string>;
@@ -18,7 +29,22 @@ interface IApp {
 }
 
 export class App implements IApp {
-  private readonly app: Elysia<'/api'>;
+  private readonly app: Elysia<'/api', {
+    request: {};
+    store: {};
+  }, {
+    type: {};
+    error: {
+      [Type.Conflict]: ConflictError;
+      [Type.DatabaseError]: DatabaseError;
+      [Type.InvalidId]: InvalidIdError;
+      [Type.NotFound]: NotFoundError;
+      [Type.Unauthorized]: UnauthorizedError;
+      [Type.Permission]: PermissionError;
+      [Type.Unknown]: UnknownError;
+      [Type.Validation]: ValidationError;
+    };
+  }>;
 
   constructor({
     domainsWhitelist,
@@ -30,7 +56,67 @@ export class App implements IApp {
         origin: domainsWhitelist,
         credentials: true,
       }))
-      .use(bearer());
+      .use(bearer())
+      .error({
+        [Type.Conflict]: ConflictError,
+        [Type.DatabaseError]: DatabaseError,
+        [Type.InvalidId]: InvalidIdError,
+        [Type.NotFound]: NotFoundError,
+        [Type.Unauthorized]: UnauthorizedError,
+        [Type.Permission]: PermissionError,
+        [Type.Unknown]: UnknownError,
+        [Type.Validation]: ValidationError,
+      })
+      .onError(({ code, error, set }) => {
+        switch (code) {
+          case Type.Conflict: {
+            set.status = conflictErrorStatus;
+            return {
+              message: error.message,
+            };
+          }
+          case Type.InvalidId: {
+            set.status = invalidIdErrorStatus;
+            return {
+              message: error.message,
+            };
+          }
+          case Type.NotFound: {
+            set.status = notFoundErrorStatus;
+            return {
+              message: error.message,
+            };
+          }
+          case Type.Unauthorized: {
+            set.status = unauthorizedErrorStatus;
+            return {
+              message: error.message,
+            };
+          }
+          case Type.Permission: {
+            set.status = permissionErrorStatus;
+            return {
+              message: error.message,
+            };
+          }
+          case 'PARSE':
+          case 'VALIDATION':
+          case Type.Validation: {
+            set.status = validationErrorStatus;
+            return {
+              message: error.message,
+            };
+          }
+          case Type.DatabaseError:
+          case Type.Unknown:
+          default: {
+            set.status = unknownErrorStatus;
+            return {
+              message: 'Internal server error',
+            };
+          }
+        }
+      });
   }
 
   use(controller: IAppPlugin): IApp {

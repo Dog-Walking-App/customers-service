@@ -1,4 +1,5 @@
 import { BaseClaims } from '../../jwt';
+import { ConflictError, PermissionError } from '../../errors';
 import { IUser, IWIPUser } from './Users.do';
 import { IUsersRepository } from './Users.repository';
 
@@ -17,7 +18,7 @@ export class UsersService {
     try {
       await this.usersRepository.getByAccountId(claims.sub);
 
-      throw new Error('User already exists');
+      throw new ConflictError('User already exists');
     } catch (error) {
       return this.usersRepository.create(claims.sub, wipUser);
     }
@@ -29,7 +30,7 @@ export class UsersService {
 
   public async update(claims: BaseClaims, id: string, wip: Partial<IWIPUser>): Promise<IUser> {
     const user = await this.usersRepository.getByAccountId(claims.sub);
-    if (user.id !== id) throw new Error('Not allowed to update other users');
+    if (user.id !== id) throw new PermissionError('Not allowed to update other users');
 
     return this.usersRepository.update(id, wip);
   }

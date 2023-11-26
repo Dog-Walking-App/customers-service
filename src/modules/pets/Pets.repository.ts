@@ -1,6 +1,8 @@
+import { DataSource, Repository } from '../../dataSource';
+import { BaseRepository } from '../../repository';
+import { NotFoundError } from '../../errors';
 import { IWIPPet, IPet } from './Pets.do';
 import { Pet } from './Pets.model';
-import { DataSource, Repository } from '../../dataSource';
 
 export interface IPetsRepository {
   create(userId: string, wipPet: IWIPPet): Promise<IPet>;
@@ -11,14 +13,15 @@ export interface IPetsRepository {
   delete(id: string): Promise<void>;
 }
 
-export class PetsRepository implements IPetsRepository {
+export class PetsRepository extends BaseRepository implements IPetsRepository {
   private repository: Repository<Pet>;
-  
+
   public constructor(dataSource: DataSource) {
+    super();
     const repository = dataSource.getRepository(Pet);
     this.repository = repository;
   }
-  
+
   public async create(userId: string, wipPet: IWIPPet): Promise<IPet> {
     const pet = new Pet();
     pet.ownerId = userId;
@@ -36,16 +39,11 @@ export class PetsRepository implements IPetsRepository {
     };
   }
 
-  public async getById(id: string): Promise<IPet> {
-    let parsedId: number;
-    try {
-      parsedId = parseInt(id);
-    } catch (error) {
-      throw new Error('Invalid id');
-    }
+  public async getById(rawId: string): Promise<IPet> {
+    const id = this.parseId(rawId);
     
-    const pet = await this.repository.findOneBy({ id: parsedId });
-    if (!pet) throw new Error('Pet not found');
+    const pet = await this.repository.findOneBy({ id });
+    if (!pet) throw new NotFoundError('Pet not found');
 
     return pet.toDO();
   }
@@ -58,16 +56,11 @@ export class PetsRepository implements IPetsRepository {
     };
   }
 
-  public async update(id: string, wipPet: Partial<IWIPPet>): Promise<IPet> {
-    let parsedId: number;
-    try {
-      parsedId = parseInt(id);
-    } catch (error) {
-      throw new Error('Invalid id');
-    }
+  public async update(rawId: string, wipPet: Partial<IWIPPet>): Promise<IPet> {
+    const id = this.parseId(rawId);
 
-    const pet = await this.repository.findOneBy({ id: parsedId });
-    if (!pet) throw new Error('Pet not found');
+    const pet = await this.repository.findOneBy({ id });
+    if (!pet) throw new NotFoundError('Pet not found');
 
     pet.name = wipPet.name || pet.name;
     const updatedPet = await this.repository.save(pet);
@@ -75,14 +68,9 @@ export class PetsRepository implements IPetsRepository {
     return updatedPet.toDO();
   }
 
-  public async delete(id: string): Promise<void> {
-    let parsedId: number;
-    try {
-      parsedId = parseInt(id);
-    } catch (error) {
-      throw new Error('Invalid id');
-    }
+  public async delete(rawId: string): Promise<void> {
+    const id = this.parseId(rawId);
 
-    await this.repository.delete({ id: parsedId });
+    await this.repository.delete({ id });
   }
 }

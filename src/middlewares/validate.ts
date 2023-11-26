@@ -1,5 +1,6 @@
 import { validateOrReject } from 'class-validator';
 import { IRequestDTO, IContext } from '../controller';
+import { ValidationError } from '../errors';
 
 const validate = <T extends object>(
   RequestDTO: IRequestDTO<T>,
@@ -11,7 +12,7 @@ const validate = <T extends object>(
       data: instance.toDO(),
     };
   } catch (error) {
-    throw new Error('Invalid data');
+    throw new ValidationError('Invalid data');
   }
 };
 

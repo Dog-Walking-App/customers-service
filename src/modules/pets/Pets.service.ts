@@ -1,4 +1,5 @@
 import { BaseClaims } from '../../jwt';
+import { NotFoundError } from '../../errors';
 import { IUsersRepository } from '../users/Users.repository';
 import { IPet, IWIPPet } from './Pets.do';
 import { IPetsRepository } from './Pets.repository';
@@ -36,7 +37,7 @@ export class PetsService {
     const user = await this.usersRepository.getByAccountId(claims.sub);
     const pet = await this.petsRepository.getById(petId);
 
-    if (pet.ownerId !== user.id) throw new Error('Pet not found');
+    if (pet.ownerId !== user.id) throw new NotFoundError('Pet not found');
 
     return this.petsRepository.update(petId, wip);
   }
@@ -48,7 +49,7 @@ export class PetsService {
     const user = await this.usersRepository.getByAccountId(claims.sub);
     const pet = await this.petsRepository.getById(petId);
 
-    if (pet.ownerId !== user.id) throw new Error('Pet not found');
+    if (pet.ownerId !== user.id) throw new NotFoundError('Pet not found');
 
     await this.petsRepository.delete(petId);
 
