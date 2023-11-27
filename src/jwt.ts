@@ -43,7 +43,7 @@ class JWT implements IJWT {
   public static new(secret: string): JWT {
     return new JWT(secret);
   }
-  
+
   private constructor(secret: string) {
     this.secret = secret;
   }
@@ -65,11 +65,11 @@ class JWT implements IJWT {
       this.fromString(token),
     ).toString();
     const parsed = JSON.parse(result);
-    
+
     if (parsed.success === false) {
       throw new Error(parsed.error);
     }
-    
+
     return parsed.data;
   }
 

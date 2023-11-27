@@ -16,7 +16,7 @@ class PetDTOClass implements IResponseInstanceDTO {
   id: string;
   ownerId: string;
   name: string;
-  
+
   public static fromDO(rawPet: Pet): PetDTOClass {
     return new PetDTOClass({
       id: rawPet.id,
@@ -63,7 +63,7 @@ class WIPPetDTOClass implements IRequestInstanceDTO<WIPPet> {
   public static fromBody(body: unknown): WIPPetDTOClass {
     return new WIPPetDTOClass(body as IRawWIPPetDTO);
   }
-  
+
   private constructor(wipPet: IRawWIPPetDTO) {
     this.name = wipPet.name;
   }

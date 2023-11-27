@@ -25,6 +25,7 @@ export default [
     },
     rules: {
       ...js.configs.recommended.rules,
+      ...ts.configs.recommended.rules,
 
       'no-multiple-empty-lines': ['error', { max: 2 }],
       semi: 'off',
@@ -47,6 +48,8 @@ export default [
       'no-console': 'warn',
       'multiline-ternary': 'off',
       'no-unused-vars': 'off',
+      indent: ['error', 2],
+      'no-trailing-spaces': 'error',
     },
   },
 ];

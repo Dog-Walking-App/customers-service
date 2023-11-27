@@ -33,7 +33,7 @@ export class PetsRepository extends BaseRepository implements IPetsRepository {
 
   public async getById(rawId: string): Promise<Pet> {
     const id = this.parseId(rawId);
-    
+
     const pet = await this.repository.findOneBy({ id });
     if (!pet) throw new NotFoundError('Pet not found');
 

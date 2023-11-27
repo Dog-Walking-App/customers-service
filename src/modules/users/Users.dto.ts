@@ -19,7 +19,7 @@ class UserDTOClass implements IResponseInstanceDTO {
   accountId: string;
   firstName: string;
   lastName: string;
-  
+
   public static fromDO(user: User): UserDTOClass {
     return new UserDTOClass({
       id: user.id,
@@ -75,7 +75,7 @@ class WIPUserDTOClass implements IRequestInstanceDTO<WIPUser> {
   public static fromBody(body: unknown): WIPUserDTOClass {
     return new WIPUserDTOClass(body as IWIPUserDTO);
   }
-  
+
   private constructor(wipUser: IWIPUserDTO) {
     this.firstName = wipUser.firstName;
     this.lastName = wipUser.lastName;

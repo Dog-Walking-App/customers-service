@@ -13,7 +13,7 @@ export class UsersService {
   }) {
     this.usersRepository = usersRepository;
   }
-  
+
   public async register(claims: BaseClaims, wipUser: WIPUser): Promise<User> {
     try {
       await this.usersRepository.getByAccountId(claims.sub);

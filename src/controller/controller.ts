@@ -21,7 +21,7 @@ interface IRequest {
   [key: string]: any;
 }
 
-export type IContext = Context<{}, {
+export type IContext = Context<NonNullable<unknown>, {
   store: IStore;
   request: IRequest;
 }>;
@@ -30,7 +30,7 @@ export type IContext = Context<{}, {
 type IHandler = any;
 
 type Handler = (context: IContext) => object | Promise<object>;
-  
+
 interface IOptions<T extends Handler> {
   beforeHandle?: T[];
   params?: ParamsSchema;
@@ -118,7 +118,7 @@ export class Controller implements IAppPlugin {
 
     return extendedResponse;
   }
-  
+
   public get<P extends object = Record<string, string | undefined>, T extends Handler = Handler>(
     path: string,
     callback: Callback<P, T>,

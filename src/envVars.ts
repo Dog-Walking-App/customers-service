@@ -11,7 +11,7 @@ class EnvVars implements IConfig {
   public dbHost: string;
   public dbPort: number;
   public dbName: string;
-  
+
   public static load(): EnvVars {
     const jwtSecret = Bun.env.JWT_SECRET;
     if (!jwtSecret) throw new Error('JWT_SECRET is not defined');

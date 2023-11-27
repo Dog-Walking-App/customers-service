@@ -7,7 +7,7 @@ import { User as UserModel } from './Users.model';
 
 export class UsersRepository extends BaseRepository implements IUsersRepository {
   private repository: Repository<UserModel>;
-  
+
   public constructor(dataSource: DataSource) {
     super();
     const repository = dataSource.getRepository(UserModel);
@@ -34,7 +34,7 @@ export class UsersRepository extends BaseRepository implements IUsersRepository 
 
   public async getById(rawId: string): Promise<User> {
     const id = this.parseId(rawId);
-    
+
     const user = await this.repository.findOneBy({ id });
     if (!user) throw new NotFoundError('User not found');
 

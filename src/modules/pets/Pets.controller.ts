@@ -54,7 +54,7 @@ const getRoutes = (config: IConfig): IAppPlugin => {
     })
     .put('/:id', async ({ claims, params, data }) => {
       if (!params.id) throw new ValidationError('Id is required');
-      
+
       const pet = await petsService.updatePet(
         claims,
         params.id,
@@ -78,7 +78,7 @@ const getRoutes = (config: IConfig): IAppPlugin => {
     })
     .delete('/:id', async ({ claims, params }) => {
       if (!params.id) throw new ValidationError('Id is required');
-      
+
       const pet = await petsService.deletePet(
         claims,
         params.id,

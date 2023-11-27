@@ -30,10 +30,10 @@ interface IApp {
 
 export class App implements IApp {
   private readonly app: Elysia<'/api', {
-    request: {};
-    store: {};
+    request: NonNullable<unknown>;
+    store: NonNullable<unknown>;
   }, {
-    type: {};
+    type: NonNullable<unknown>;
     error: {
       [Type.Conflict]: ConflictError;
       [Type.DatabaseError]: DatabaseError;
@@ -69,52 +69,52 @@ export class App implements IApp {
       })
       .onError(({ code, error, set }) => {
         switch (code) {
-          case Type.Conflict: {
-            set.status = conflictErrorStatus;
-            return {
-              message: error.message,
-            };
-          }
-          case Type.InvalidId: {
-            set.status = invalidIdErrorStatus;
-            return {
-              message: error.message,
-            };
-          }
-          case Type.NotFound: {
-            set.status = notFoundErrorStatus;
-            return {
-              message: error.message,
-            };
-          }
-          case Type.Unauthorized: {
-            set.status = unauthorizedErrorStatus;
-            return {
-              message: error.message,
-            };
-          }
-          case Type.Permission: {
-            set.status = permissionErrorStatus;
-            return {
-              message: error.message,
-            };
-          }
-          case 'PARSE':
-          case 'VALIDATION':
-          case Type.Validation: {
-            set.status = validationErrorStatus;
-            return {
-              message: error.message,
-            };
-          }
-          case Type.DatabaseError:
-          case Type.Unknown:
-          default: {
-            set.status = unknownErrorStatus;
-            return {
-              message: 'Internal server error',
-            };
-          }
+        case Type.Conflict: {
+          set.status = conflictErrorStatus;
+          return {
+            message: error.message,
+          };
+        }
+        case Type.InvalidId: {
+          set.status = invalidIdErrorStatus;
+          return {
+            message: error.message,
+          };
+        }
+        case Type.NotFound: {
+          set.status = notFoundErrorStatus;
+          return {
+            message: error.message,
+          };
+        }
+        case Type.Unauthorized: {
+          set.status = unauthorizedErrorStatus;
+          return {
+            message: error.message,
+          };
+        }
+        case Type.Permission: {
+          set.status = permissionErrorStatus;
+          return {
+            message: error.message,
+          };
+        }
+        case 'PARSE':
+        case 'VALIDATION':
+        case Type.Validation: {
+          set.status = validationErrorStatus;
+          return {
+            message: error.message,
+          };
+        }
+        case Type.DatabaseError:
+        case Type.Unknown:
+        default: {
+          set.status = unknownErrorStatus;
+          return {
+            message: 'Internal server error',
+          };
+        }
         }
       })
       .get('/healthcheck/ping', async () => 'pong', {

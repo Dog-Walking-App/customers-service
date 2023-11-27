@@ -18,7 +18,7 @@ export class PetsService {
     this.petsRepository = petsRepository;
     this.usersRepository = usersRepository;
   }
-  
+
   public async registerPet(claims: BaseClaims, wipPet: WIPPet): Promise<Pet> {
     const user = await this.usersRepository.getByAccountId(claims.sub);
     return this.petsRepository.create(user.id, wipPet);

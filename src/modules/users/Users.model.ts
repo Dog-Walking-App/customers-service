@@ -12,7 +12,7 @@ export class User implements IModel<UserDO> {
 
   @Column()
   public firstName!: string;
-  
+
   @Column()
   public lastName!: string;
 

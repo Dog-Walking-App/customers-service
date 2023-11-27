@@ -12,7 +12,7 @@ export class Pet implements IModel<PetDO> {
 
   @Column()
   public name!: string;
-  
+
   public toDO(): PetDO {
     return new PetDO({
       id: this.id.toString(),
