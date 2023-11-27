@@ -1,29 +1,29 @@
-export interface IPet {
+interface IRawPet {
   id: string;
   ownerId: string;
   name: string;
 }
 
-export class Pet implements IPet {
+export class Pet {
   public id: string;
   public ownerId: string;
   public name: string;
 
-  public constructor(rawPet: IPet) {
+  public constructor(rawPet: IRawPet) {
     this.id = rawPet.id;
     this.ownerId = rawPet.ownerId;
     this.name = rawPet.name;
   }
 }
 
-export interface IWIPPet {
+interface IRawWIPPet {
   name: string;
 }
 
-export class WIPPet implements IWIPPet {
+export class WIPPet {
   public name: string;
 
-  public constructor(rawPet: IWIPPet) {
+  public constructor(rawPet: IRawWIPPet) {
     this.name = rawPet.name;
   }
 }

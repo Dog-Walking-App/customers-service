@@ -1,7 +1,7 @@
 import { BaseClaims } from '../../jwt';
 import { ConflictError, PermissionError } from '../../errors';
-import { IUser, IWIPUser } from './Users.do';
-import { IUsersRepository } from './Users.repository';
+import { User, WIPUser } from './Users.do';
+import { IUsersRepository } from './IUsersRepository';
 
 export class UsersService {
   private usersRepository: IUsersRepository;
@@ -14,7 +14,7 @@ export class UsersService {
     this.usersRepository = usersRepository;
   }
   
-  public async register(claims: BaseClaims, wipUser: IWIPUser): Promise<IUser> {
+  public async register(claims: BaseClaims, wipUser: WIPUser): Promise<User> {
     try {
       await this.usersRepository.getByAccountId(claims.sub);
 
@@ -24,11 +24,11 @@ export class UsersService {
     }
   }
 
-  public getMe(claims: BaseClaims): Promise<IUser> {
+  public getMe(claims: BaseClaims): Promise<User> {
     return this.usersRepository.getByAccountId(claims.sub);
   }
 
-  public async update(claims: BaseClaims, id: string, wip: Partial<IWIPUser>): Promise<IUser> {
+  public async update(claims: BaseClaims, id: string, wip: Partial<WIPUser>): Promise<User> {
     const user = await this.usersRepository.getByAccountId(claims.sub);
     if (user.id !== id) throw new PermissionError('Not allowed to update other users');
 

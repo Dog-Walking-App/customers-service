@@ -1,12 +1,12 @@
 import { t } from 'elysia';
-import { IPet, IWIPPet, WIPPet } from './Pets.do';
+import { Pet, WIPPet } from './Pets.do';
 import {
   IRequestInstanceDTO, IRequestDTO,
   IResponseInstanceDTO, IResponseDTO,
 } from '../../controller/dto';
 import { IBodySchema, IResponseSchema } from '../../controller/schema';
 
-interface IPetDTO {
+interface IRawPetDTO {
   id: string;
   ownerId: string;
   name: string;
@@ -17,7 +17,7 @@ class PetDTOClass implements IResponseInstanceDTO {
   ownerId: string;
   name: string;
   
-  public static fromDO(rawPet: IPet): PetDTOClass {
+  public static fromDO(rawPet: Pet): PetDTOClass {
     return new PetDTOClass({
       id: rawPet.id,
       ownerId: rawPet.ownerId,
@@ -25,7 +25,7 @@ class PetDTOClass implements IResponseInstanceDTO {
     });
   }
 
-  private constructor(user: IPetDTO) {
+  private constructor(user: IRawPetDTO) {
     this.id = user.id;
     this.ownerId = user.ownerId;
     this.name = user.name;
@@ -50,25 +50,25 @@ class PetDTOClass implements IResponseInstanceDTO {
   }
 }
 
-export const PetDTO: IResponseDTO<IPet> & IResponseSchema = PetDTOClass;
+export const PetDTO: IResponseDTO<Pet> & IResponseSchema = PetDTOClass;
 
 
-interface IWIPPetDTO {
+interface IRawWIPPetDTO {
   name: string;
 }
 
-class WIPPetDTOClass implements IRequestInstanceDTO<IWIPPet> {
+class WIPPetDTOClass implements IRequestInstanceDTO<WIPPet> {
   public name: string;
 
   public static fromBody(body: unknown): WIPPetDTOClass {
-    return new WIPPetDTOClass(body as IWIPPetDTO);
+    return new WIPPetDTOClass(body as IRawWIPPetDTO);
   }
   
-  private constructor(wipPet: IWIPPetDTO) {
+  private constructor(wipPet: IRawWIPPetDTO) {
     this.name = wipPet.name;
   }
 
-  public toDO(): IWIPPet {
+  public toDO(): WIPPet {
     return new WIPPet({
       name: this.name,
     });
@@ -83,4 +83,4 @@ class WIPPetDTOClass implements IRequestInstanceDTO<IWIPPet> {
   }
 }
 
-export const WIPPetDTO: IRequestDTO<IWIPPet> & IBodySchema = WIPPetDTOClass;
+export const WIPPetDTO: IRequestDTO<WIPPet> & IBodySchema = WIPPetDTOClass;

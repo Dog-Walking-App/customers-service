@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { IModel } from '../../model';
-import { IPet, Pet as PetDO } from './Pets.do';
+import { Pet as PetDO } from './Pets.do';
 
 @Entity()
-export class Pet implements IModel<IPet> {
+export class Pet implements IModel<PetDO> {
   @PrimaryGeneratedColumn()
   public id!: number;
 
@@ -13,7 +13,7 @@ export class Pet implements IModel<IPet> {
   @Column()
   public name!: string;
   
-  public toDO(): IPet {
+  public toDO(): PetDO {
     return new PetDO({
       id: this.id.toString(),
       ownerId: this.ownerId,

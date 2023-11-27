@@ -1,8 +1,8 @@
 import { BaseClaims } from '../../jwt';
 import { NotFoundError } from '../../errors';
-import { IUsersRepository } from '../users/Users.repository';
-import { IPet, IWIPPet } from './Pets.do';
-import { IPetsRepository } from './Pets.repository';
+import { IUsersRepository } from '../users/IUsersRepository';
+import { IPetsRepository } from './IPetsRepository';
+import { Pet, WIPPet } from './Pets.do';
 
 export class PetsService {
   private petsRepository: IPetsRepository;
@@ -19,12 +19,12 @@ export class PetsService {
     this.usersRepository = usersRepository;
   }
   
-  public async registerPet(claims: BaseClaims, wipPet: IWIPPet): Promise<IPet> {
+  public async registerPet(claims: BaseClaims, wipPet: WIPPet): Promise<Pet> {
     const user = await this.usersRepository.getByAccountId(claims.sub);
     return this.petsRepository.create(user.id, wipPet);
   }
 
-  public async getPets(claims: BaseClaims): Promise<{ items: IPet[] }> {
+  public async getPets(claims: BaseClaims): Promise<{ items: Pet[] }> {
     const user = await this.usersRepository.getByAccountId(claims.sub);
     return this.petsRepository.getByUserId(user.id);
   }
@@ -32,8 +32,8 @@ export class PetsService {
   public async updatePet(
     claims: BaseClaims,
     petId: string,
-    wip: Partial<IWIPPet>,
-  ): Promise<IPet> {
+    wip: Partial<WIPPet>,
+  ): Promise<Pet> {
     const user = await this.usersRepository.getByAccountId(claims.sub);
     const pet = await this.petsRepository.getById(petId);
 
@@ -45,7 +45,7 @@ export class PetsService {
   public async deletePet(
     claims: BaseClaims,
     petId: string,
-  ): Promise<IPet> {
+  ): Promise<Pet> {
     const user = await this.usersRepository.getByAccountId(claims.sub);
     const pet = await this.petsRepository.getById(petId);
 

@@ -1,17 +1,17 @@
-export interface IUser {
+interface IRawUser {
   id: string;
   accountId: string;
   firstName: string;
   lastName: string;
 }
 
-export class User implements IUser {
+export class User {
   public id: string;
   public accountId: string;
   public firstName: string;
   public lastName: string;
 
-  public constructor(rawUser: IUser) {
+  public constructor(rawUser: IRawUser) {
     this.id = rawUser.id;
     this.accountId = rawUser.accountId;
     this.firstName = rawUser.firstName;
@@ -19,16 +19,16 @@ export class User implements IUser {
   }
 }
 
-export interface IWIPUser {
+interface IRawWIPUser {
   firstName?: string;
   lastName?: string;
 }
 
-export class WIPUser implements IWIPUser {
+export class WIPUser {
   public firstName?: string;
   public lastName?: string;
 
-  public constructor(rawUser: IWIPUser) {
+  public constructor(rawUser: IRawWIPUser) {
     this.firstName = rawUser.firstName;
     this.lastName = rawUser.lastName;
   }

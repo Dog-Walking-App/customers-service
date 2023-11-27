@@ -1,13 +1,13 @@
 import { t } from 'elysia';
 import { IsOptional } from 'class-validator';
-import { IUser, IWIPUser, WIPUser } from './Users.do';
+import { User, WIPUser } from './Users.do';
 import {
   IRequestInstanceDTO, IRequestDTO,
   IResponseInstanceDTO, IResponseDTO,
 } from '../../controller/dto';
 import { IBodySchema, IResponseSchema } from '../../controller/schema';
 
-interface IUserDTO {
+interface IRawUserDTO {
   id: string;
   accountId: string;
   firstName: string;
@@ -20,16 +20,16 @@ class UserDTOClass implements IResponseInstanceDTO {
   firstName: string;
   lastName: string;
   
-  public static fromDO(rawUser: IUser): UserDTOClass {
+  public static fromDO(user: User): UserDTOClass {
     return new UserDTOClass({
-      id: rawUser.id,
-      accountId: rawUser.accountId,
-      firstName: rawUser.firstName,
-      lastName: rawUser.lastName,
+      id: user.id,
+      accountId: user.accountId,
+      firstName: user.firstName,
+      lastName: user.lastName,
     });
   }
 
-  private constructor(user: IUserDTO) {
+  private constructor(user: IRawUserDTO) {
     this.id = user.id;
     this.accountId = user.accountId;
     this.firstName = user.firstName;
@@ -57,7 +57,7 @@ class UserDTOClass implements IResponseInstanceDTO {
   }
 }
 
-export const UserDTO: IResponseDTO<IUser> & IResponseSchema = UserDTOClass;
+export const UserDTO: IResponseDTO<User> & IResponseSchema = UserDTOClass;
 
 
 interface IWIPUserDTO {
@@ -65,7 +65,7 @@ interface IWIPUserDTO {
   lastName?: string;
 }
 
-class WIPUserDTOClass implements IRequestInstanceDTO<IWIPUser> {
+class WIPUserDTOClass implements IRequestInstanceDTO<WIPUser> {
   @IsOptional()
   public firstName?: string;
 
@@ -81,7 +81,7 @@ class WIPUserDTOClass implements IRequestInstanceDTO<IWIPUser> {
     this.lastName = wipUser.lastName;
   }
 
-  public toDO(): IWIPUser {
+  public toDO(): WIPUser {
     return new WIPUser({
       firstName: this.firstName,
       lastName: this.lastName,
@@ -98,4 +98,4 @@ class WIPUserDTOClass implements IRequestInstanceDTO<IWIPUser> {
   }
 }
 
-export const WIPUserDTO: IRequestDTO<IWIPUser> & IBodySchema = WIPUserDTOClass;
+export const WIPUserDTO: IRequestDTO<WIPUser> & IBodySchema = WIPUserDTOClass;

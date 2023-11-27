@@ -1,9 +1,9 @@
 import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 import { IModel } from '../../model';
-import { IUser, User as UserDO } from './Users.do';
+import { User as UserDO } from './Users.do';
 
 @Entity()
-export class User implements IModel<IUser> {
+export class User implements IModel<UserDO> {
   @PrimaryGeneratedColumn()
   public id!: number;
 
@@ -16,7 +16,7 @@ export class User implements IModel<IUser> {
   @Column()
   public lastName!: string;
 
-  public toDO(): IUser {
+  public toDO(): UserDO {
     return new UserDO({
       id: this.id.toString(),
       accountId: this.accountId,

@@ -1,29 +1,21 @@
 import { DataSource, Repository } from '../../dataSource';
 import { BaseRepository } from '../../repository';
 import { NotFoundError } from '../../errors';
-import { IWIPPet, IPet } from './Pets.do';
-import { Pet } from './Pets.model';
-
-export interface IPetsRepository {
-  create(userId: string, wipPet: IWIPPet): Promise<IPet>;
-  getAll(): Promise<{ items: IPet[] }>;
-  getById(id: string): Promise<IPet>;
-  getByUserId(userId: string): Promise<{ items: IPet[] }>;
-  update(id: string, wipPet: Partial<IWIPPet>): Promise<IPet>;
-  delete(id: string): Promise<void>;
-}
+import { IPetsRepository } from './IPetsRepository';
+import { WIPPet, Pet } from './Pets.do';
+import { Pet as PetModel } from './Pets.model';
 
 export class PetsRepository extends BaseRepository implements IPetsRepository {
-  private repository: Repository<Pet>;
+  private repository: Repository<PetModel>;
 
   public constructor(dataSource: DataSource) {
     super();
-    const repository = dataSource.getRepository(Pet);
+    const repository = dataSource.getRepository(PetModel);
     this.repository = repository;
   }
 
-  public async create(userId: string, wipPet: IWIPPet): Promise<IPet> {
-    const pet = new Pet();
+  public async create(userId: string, wipPet: WIPPet): Promise<Pet> {
+    const pet = new PetModel();
     pet.ownerId = userId;
     pet.name = wipPet.name;
     const updatedPet = await this.repository.save(pet);
@@ -31,7 +23,7 @@ export class PetsRepository extends BaseRepository implements IPetsRepository {
     return updatedPet.toDO();
   }
 
-  public async getAll(): Promise<{ items: IPet[] }> {
+  public async getAll(): Promise<{ items: Pet[] }> {
     const pets = await this.repository.find();
 
     return {
@@ -39,7 +31,7 @@ export class PetsRepository extends BaseRepository implements IPetsRepository {
     };
   }
 
-  public async getById(rawId: string): Promise<IPet> {
+  public async getById(rawId: string): Promise<Pet> {
     const id = this.parseId(rawId);
     
     const pet = await this.repository.findOneBy({ id });
@@ -48,7 +40,7 @@ export class PetsRepository extends BaseRepository implements IPetsRepository {
     return pet.toDO();
   }
 
-  public async getByUserId(userId: string): Promise<{ items: IPet[] }> {
+  public async getByUserId(userId: string): Promise<{ items: Pet[] }> {
     const pets = await this.repository.findBy({ ownerId: userId });
 
     return {
@@ -56,7 +48,7 @@ export class PetsRepository extends BaseRepository implements IPetsRepository {
     };
   }
 
-  public async update(rawId: string, wipPet: Partial<IWIPPet>): Promise<IPet> {
+  public async update(rawId: string, wipPet: Partial<WIPPet>): Promise<Pet> {
     const id = this.parseId(rawId);
 
     const pet = await this.repository.findOneBy({ id });
